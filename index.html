@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XPath Token Highlighter</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <h1 style="text-align: center"> Data Visualizer for the Ground Truth in <a href="https://zenodo.org/record/8040341">MarkupMnA Dataset</a></h1>
+    <h2> Data Resoures: </h2>
+    <p>Use any contract's HTML file (full dataset with HTML links <a href="https://zenodo.org/record/8040341">here</a>) in addition to the corresponding MarkupLM predictions <a href="https://drive.google.com/drive/u/0/folders/1FZPBE0Eb2OoAfWjAK6yiKSabKkIEO8u_">json files</a></p>
+    <div class="file-upload">
+      <h2> Instructions: </h2>
+      <p> Step 1:
+        <label class="file-label">
+          Choose a HTML file to highlight:
+        </label>
+        <input type="file" id="html-file-selector"/>
+      </p>
+      <p> Step 2:
+        <label class="file-label">
+          Choose a CSV file containing the groud truth:
+        </label>
+        <input type="file" id="json-file-selector"/>
+      </p>
+    </div>
+    <p id = "html-preview">
+      <h2>Your HTML document will show here.</h2>
+    </p>
+    <table>
+      <tr>
+        <th>Prediction category (segment type)</th>
+        <th>Color</th>
+      </tr>
+      
+      <tr>
+        <td>t (title)</td>
+        <td style="background-color: #FF8C00;">DarkOrange</td>
+      </tr>
+
+      <tr>
+        <td>tn (title number)</td>
+        <td style="background-color: #E9967A;">DarkSalmon</td>
+      </tr>
+      <tr>
+        <td>n (page number)</td>
+        <td style="background-color: #FFD700;">Gold</td>
+      </tr>
+      <tr>
+        <td>st (section title)</td>
+        <td style="background-color: #F08080;">LightCoral</td>
+      </tr>
+      <tr>
+        <td>sn (section number)</td>
+        <td style="background-color: #CD5C5C;">IndianRed</td>
+      </tr>
+      <tr>
+        <td>sst (sub-section title)</td>
+        <td style="background-color: #DDA0DD;">Plum</td>
+      </tr>
+      <tr>
+        <td>ssn (sub-section number)</td>
+        <td style="background-color: #FA8072;">Salmon</td>
+      </tr>
+      <tr>
+        <td>ssst (sub-sub-section title)</td>
+        <td style="background-color: #5F9EA0;">CadetBlue</td>
+      </tr>
+      <tr>
+        <td>sssn (sub-sub-section number)</td>
+        <td style="background-color: #B0C4DE;">LightSteelBlue</td>
+      </tr>
+      <tr>
+        <td>sssst (sub-sub-sub-section title)</td>
+        <td style="background-color: #98FB98;">PaleGreen</td>
+      </tr>
+      <tr>
+        <td>ssssn (sub-sub-sub-section number)</td>
+        <td style="background-color: #66CDAA;">MediumAquaMarine</td>
+      </tr>
+      <tr>
+        <td>o (outside)</td>
+        <td style="background-color: #DCDCDC;">Gainsboro</td>
+      </tr>
+    </table>
+    <script src="main.js"></script>
+  </body>
+</html>
