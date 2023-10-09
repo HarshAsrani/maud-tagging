@@ -1,6 +1,6 @@
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  line-height: 1.1;
   font-weight: 400;
 
   color-scheme: light dark;
@@ -14,14 +14,49 @@
   -webkit-text-size-adjust: 100%;
 }
 
-.file-upload {
+div {
+  width: 75%;
+  display: block;
+  text-align: left;
+}
+
+.file-upload-heading {
+  margin-right: 10px; /* Adjust as needed for spacing between heading and divs */
+  width: 100%;
+}
+
+.file-upload-options {
+  display:flex;
+  width: 100%;
+}
+
+.file-upload-option1， .file-upload-option2{
+  width: 50%
+}
+
+.document-display {
   display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
+}
+
+.prediction-category {
+  width: 22%;
+  font-size: 0.7em;
+  padding: 10px;
+  /* position: absolute; */
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  background-color: #f0f0f0;
+}
+
+.html-display {
+  width: 90%;
+  text-align: center;
 }
 
 .file-label {
   padding-right: 1rem;
+  display: inline;
 }
 
 a {
@@ -43,8 +78,13 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 2.5em;
   line-height: 1.1;
+  text-align: center;
+}
+
+h2 {
+  text-align: left;
 }
 
 #app {
@@ -105,4 +145,10 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.halving-line {
+  border: 1px solid lightgrey; /* Black border for the line */
+  margin: 10px 0; /* Optional margin for spacing */
+  width: 75%;
 }

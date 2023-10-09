@@ -3,10 +3,16 @@ let json;
 
 const htmlFileSelector = document.getElementById('html-file-selector');
 const jsonFileSelector = document.getElementById('json-file-selector');
+const contractSelector = document.getElementById('select-contract');
 const htmlPreview = document.getElementById('html-preview');
 
 const colorMap = new Map();
 const xpathMap = new Map();
+
+function checkContractString(str) {
+  const regex = /^contract_(?:[1-9]|[1-9][0-9]|[1][0-4][0-9]|152)$/;
+  return regex.test(str);
+}
 
 htmlFileSelector.addEventListener('change', (event) => {
   const file = event.target.files[0];
@@ -15,42 +21,114 @@ htmlFileSelector.addEventListener('change', (event) => {
 
 jsonFileSelector.addEventListener('change', (event) => {
   const file = event.target.files[0];
-  readJSON(file);
+  readCSV(file);
 })
 
-function parseXPaths(json) {
-  Object.values(json).map(
-      (jsonValue) => {
-          const xpath = jsonValue.xpaths;
-          const nodes = jsonValue.nodes;
-          const preds = jsonValue.preds;
-          populateColorMap(preds);
+contractSelector.addEventListener('input', () => {
+  const selectedValue = contractSelector.value;
+  console.log('User selected:', selectedValue);
+  if (checkContractString(selectedValue)) {
+    console.log("True");
+    loadFile("contract/html/"+selectedValue+".html", "html");
+    loadFile("contract/csv/"+selectedValue+".csv", "csv");
+  }
+});
 
-          let xpathMapValue = xpathMap.get(xpath);
-          if (xpathMapValue !== undefined) {
-              xpathMapValue.nodeArray.push([nodes, preds]);
-          } else {
-          const text = jsonValue.text;
-          // need to handle duplicate nodes - use an Array and not map
-          // need to process the text sequentially
-          const nodeArray = [[nodes, preds]];
-          // Xpath object - contains the text and array of node -> preds
-          xpathMap.set(xpath, {
-              text: text,
-              nodeArray: nodeArray
-          })
-          }
-      })
+function readHTML(file) {
+  const reader = new FileReader();
+  //TODO: Read text encoding from header of file
+  reader.readAsText(file, "windows-1252");
+  console.log(reader);
+  reader.addEventListener(
+    "load", () => {
+      processHTML(reader.result);
+    }
+  )
+}
+
+function readCSV(file) {
+  const reader = new FileReader();
+  // TODO: Read text encoding from header of file
+  reader.readAsText(file, "windows-1252");
+
+  reader.addEventListener("load", () => {
+    processCSV(reader.result);
+  });
+}
+
+function loadFile(path, fileType) {
+  const xhr = new XMLHttpRequest();
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        if (fileType === "html") {
+          processHTML(xhr.responseText);
+        }
+        else if (fileType === "csv") {
+          processCSV(xhr.responseText);
+        }
+      } else {
+        console.error('Error loading file:', xhr.status);
+      }
+    }
+  };
+  xhr.open('GET', path, true);
+  xhr.send();
+  return "";
+}
+
+function processHTML(text) {
+  const parser = new DOMParser();
+  dom = parser.parseFromString(text, 'text/html');
+  htmlPreview.innerHTML = text;
+}
+
+function processCSV(text) {
+  const csvRows = text.trim().split('\n').map(row => row.replace(/\r$/, ''))
+  const csvData = csvRows.map(row => row.split(','));
+  // Assuming the CSV has comma-separated values
+
+  // Now you can process the CSV data (e.g., display, parse, etc.)
+  parseXPaths(csvData.slice(1))
+  colorize();
+}
+
+function parseXPaths(csvRows) {
+  // Each CSV row is an array of values representing a row
+  for (const csvRow of csvRows) {
+    const xpath = csvRow[0]; // Assuming the XPath is in the first column
+    const text = csvRow[1];
+    const tagged_sequence = csvRow[4]; // Assuming the preds are in the third column
+    // console.log(csvRow);
+    // console.log(xpath+" "+text+" "+tagged_sequence);
+    populateColorMap(tagged_sequence);
+
+    let xpathMapValue = xpathMap.get(xpath);
+    if (xpathMapValue !== undefined) {
+      xpathMapValue.nodeArray.push([text, tagged_sequence]);
+    } else {
+      // need to handle duplicate nodes - use an Array and not map
+      // need to process the text sequentially
+      const nodeArray = [[text, tagged_sequence]];
+      // Xpath object - contains the text and array of node -> preds
+      xpathMap.set(xpath, {
+        text: text, // There's no text in CSV, so setting an empty string
+        nodeArray: nodeArray
+      });
+    }
+  }
 }
 
 function colorize() {
+  console.log("Start to colorize")
   xpathMap.forEach(
       (value, key) => {
           //TODO: account for different paths
           const sliceIndex = "/html/body/".length;
           //add p tag to all xpaths because the web app renders the html file in a p tag
           //don't need this if running directly on the html you want to highlight
-          const removedHtmlAndBodyTags  = key.slice(0, sliceIndex) + "p/" + key.slice(sliceIndex);
+          const removedHtmlAndBodyTags  = key.slice(0, sliceIndex) + "div/div/div/p/" + key.slice(sliceIndex);
           // 7 corresponds to ORDERED_NODE_SNAPSHOT_TYPE
           const xpathResult = document.evaluate(removedHtmlAndBodyTags, document, null, 7, null)
           for (let i = 0; i < xpathResult.snapshotLength; i++) {
@@ -130,33 +208,5 @@ function populateColorMap(preds) {
   }
   const colorMapValue = colorMapper[predsSplit];
   colorMap.set(preds, colorMapValue);
-}
-
-function readHTML(file) {
-  const reader = new FileReader();
-  //TODO: Read text encoding from header of file
-  reader.readAsText(file, "windows-1252");
-  reader.addEventListener(
-    "load", () => {
-      const text = reader.result;
-      const parser = new DOMParser();
-      dom = parser.parseFromString(text, 'text/html');
-
-      htmlPreview.innerHTML = text;
-    }
-  )
-}
-
-function readJSON(file) {
-  const reader = new FileReader();
-  reader.addEventListener(
-    "load", () => {
-      const text = reader.result;
-      json = JSON.parse(text);
-      parseXPaths(json);
-      colorize();
-    }
-  )
-  reader.readAsText(file, "windows-1252")
 }
 
