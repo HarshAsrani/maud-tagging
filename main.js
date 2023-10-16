@@ -10,7 +10,7 @@ const colorMap = new Map();
 const xpathMap = new Map();
 
 function checkContractString(str) {
-  const regex = /^contract_(?:[1-9]|[1-9][0-9]|[1][0-4][0-9]|152)$/;
+  const regex = /^contract_(?:[0-9]|[1-9][0-9]|1[0-4][0-9]|150|151)$/;
   return regex.test(str);
 }
 
