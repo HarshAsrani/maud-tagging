@@ -12,7 +12,7 @@
     <h1> Data Visualizer for the Ground Truth in <a href="https://zenodo.org/record/8040341">MarkupMnA Dataset</a></h1>
     <div class="data-source">
       <h2> Data Resoures </h2>
-      <p>Use any contract's HTML file (full dataset with HTML links <a href="https://zenodo.org/record/8040341">here</a>) in addition to the corresponding MarkupLM predictions <a href="https://drive.google.com/drive/u/0/folders/1FZPBE0Eb2OoAfWjAK6yiKSabKkIEO8u_">json files</a></p>
+      <p>Use any contract's HTML file (full dataset with HTML links <a href="https://zenodo.org/record/8040341">here</a>) in addition to the corresponding MarkupLM ground truth <a href="https://zenodo.org/record/8040341">CSV files</a></p>
     </div>
     <hr class="halving-line">
     <div class="file-upload">
@@ -31,9 +31,9 @@
           </p>
           <p> Step 2:
             <label class="file-label">
-              Choose a CSV file containing the groud truth:
+              Choose a CSV file containing the ground truth:
             </label>
-            <input type="file" id="json-file-selector"/>
+            <input type="file" id="csv-file-selector"/>
           </p>
         </div>
         <div class="file-upload-option2">
@@ -107,10 +107,10 @@
               <td>ssssn (sub-sub-sub-section number)</td>
               <td style="background-color: #66CDAA;">MediumAquaMarine</td>
             </tr>
-            <tr>
+            <!-- <tr>
               <td>o (outside)</td>
               <td style="background-color: #DCDCDC;">Gainsboro</td>
-            </tr>
+            </tr> -->
           </table>
         </div>
         <div class="html-display" id="html-div">

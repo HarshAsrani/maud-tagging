@@ -2,7 +2,7 @@ let dom;
 let json;
 
 const htmlFileSelector = document.getElementById('html-file-selector');
-const jsonFileSelector = document.getElementById('json-file-selector');
+const csvFileSelector = document.getElementById('csv-file-selector');
 const contractSelector = document.getElementById('select-contract');
 const htmlPreview = document.getElementById('html-preview');
 
@@ -19,7 +19,7 @@ htmlFileSelector.addEventListener('change', (event) => {
   readHTML(file);
 })
 
-jsonFileSelector.addEventListener('change', (event) => {
+csvFileSelector.addEventListener('change', (event) => {
   const file = event.target.files[0];
   readCSV(file);
 })
@@ -38,7 +38,6 @@ function readHTML(file) {
   const reader = new FileReader();
   //TODO: Read text encoding from header of file
   reader.readAsText(file, "windows-1252");
-  console.log(reader);
   reader.addEventListener(
     "load", () => {
       processHTML(reader.result);
@@ -50,9 +49,9 @@ function readCSV(file) {
   const reader = new FileReader();
   // TODO: Read text encoding from header of file
   reader.readAsText(file, "windows-1252");
-
   reader.addEventListener("load", () => {
-    processCSV(reader.result);
+    text = reader.result;
+    processCSV(text);
   });
 }
 
@@ -63,10 +62,17 @@ function loadFile(path, fileType) {
     if (xhr.readyState === XMLHttpRequest.DONE) {
       if (xhr.status === 200) {
         if (fileType === "html") {
-          processHTML(xhr.responseText);
+          // const text = xhr.responseText;
+          const text = xhr.response;
+          const decoder = new TextDecoder('windows-1252');
+          const decodedText = decoder.decode(text);
+          processHTML(decodedText);
         }
         else if (fileType === "csv") {
-          processCSV(xhr.responseText);
+          const text = xhr.response;
+          const decoder = new TextDecoder('windows-1252');
+          const decodedText = decoder.decode(text);
+          processCSV(decodedText);
         }
       } else {
         console.error('Error loading file:', xhr.status);
@@ -74,6 +80,7 @@ function loadFile(path, fileType) {
     }
   };
   xhr.open('GET', path, true);
+  xhr.responseType = 'arraybuffer';
   xhr.send();
   return "";
 }
@@ -85,104 +92,109 @@ function processHTML(text) {
 }
 
 function processCSV(text) {
-  const csvRows = text.trim().split('\n').map(row => row.replace(/\r$/, ''))
-  const csvData = csvRows.map(row => row.split(','));
+  const csvRows = text.trim().split('\n').map(row => row.replace(/\r$/, ''));
+  const csvData = parseCSV(csvRows.join('\n'));
   // Assuming the CSV has comma-separated values
-
   // Now you can process the CSV data (e.g., display, parse, etc.)
   parseXPaths(csvData.slice(1))
   colorize();
 }
 
-function parseXPaths(csvRows) {
-  // Each CSV row is an array of values representing a row
-  for (const csvRow of csvRows) {
-    const xpath = csvRow[0]; // Assuming the XPath is in the first column
-    const text = csvRow[1];
-    const tagged_sequence = csvRow[4]; // Assuming the preds are in the third column
-    // console.log(csvRow);
-    // console.log(xpath+" "+text+" "+tagged_sequence);
-    populateColorMap(tagged_sequence);
+function parseCSV(csv) {
+  const regex = /(\s*"[^"]+"\s*|\s*[^,]+|,)(?=,|$)/g;
+  const lines = csv.split('\n');
+  const data = [];
 
-    let xpathMapValue = xpathMap.get(xpath);
-    if (xpathMapValue !== undefined) {
-      xpathMapValue.nodeArray.push([text, tagged_sequence]);
-    } else {
-      // need to handle duplicate nodes - use an Array and not map
-      // need to process the text sequentially
-      const nodeArray = [[text, tagged_sequence]];
-      // Xpath object - contains the text and array of node -> preds
-      xpathMap.set(xpath, {
-        text: text, // There's no text in CSV, so setting an empty string
-        nodeArray: nodeArray
-      });
+  for (let i = 0; i < lines.length; i++) {
+    const rowMatches = lines[i].match(regex);
+    if (rowMatches) {
+      const row = rowMatches.map(field => field.trim().replace(/^"(.+)"$/, '$1'));
+      data.push(row);
+    }
+  }
+  return data;
+}
+
+const xpathCount = new Map();
+
+function xpathPreprocessing(csvRows) {
+  for (const csvRow of csvRows) {
+    const tagged_sequence = csvRow[4];
+    if (tagged_sequence !== "o") {
+      const xpathOriginal = csvRow[2]; // Assuming the XPath is in the first column
+      const sliceIndex = "/html/body/".length;
+      xpathNew = xpathOriginal.slice(0, sliceIndex) + "div/div/div/p/" + xpathOriginal.slice(sliceIndex);
+      xpathCount[xpathNew] = 1;
+    }
+  }
+  
+  for (const xpath in xpathCount) {
+    var result = document.evaluate(xpath, document, null, 9, null).singleNodeValue;
+    const walker = document.createTreeWalker(result, NodeFilter.SHOW_TEXT, null, false);
+    while (textNode = walker.nextNode()) {
+      if (textNode.textContent.trim().length > 0) {
+        const span = document.createElement('span');
+        const parent = textNode.parentNode;
+        parent.insertBefore(span, textNode);
+        span.appendChild(textNode);
+      }
+    }
+  }
+}
+
+// New code: to be tested
+function parseXPaths(csvRows) {
+  // 1. Extract info from CSV file
+  // 2. Initialize xpathMap: {xpath:[text,tagged_sequence]}
+  // Each CSV row is an array of values representing a row
+  xpathPreprocessing(csvRows);
+  for (const csvRow of csvRows) {
+    const tagged_sequence = csvRow[4]; // Assuming the preds are in the third column
+    if (tagged_sequence !== "o") {
+      const xpathOriginal = csvRow[2]; // Assuming the XPath is in the first column
+      const sliceIndex = "/html/body/".length;
+      xpath = xpathOriginal.slice(0, sliceIndex) + "div/div/div/p/" + xpathOriginal.slice(sliceIndex); // update xpath as original html is rendered inside a p tag
+      count = xpathCount[xpath];
+      xpathCount[xpath] = count + 1;
+      xpath = xpath + "/span["+count+"]";
+      const text = csvRow[3];
+      xpathMap.set(xpath, [text, tagged_sequence]);
     }
   }
 }
 
 function colorize() {
-  console.log("Start to colorize")
-  xpathMap.forEach(
-      (value, key) => {
-          //TODO: account for different paths
-          const sliceIndex = "/html/body/".length;
-          //add p tag to all xpaths because the web app renders the html file in a p tag
-          //don't need this if running directly on the html you want to highlight
-          const removedHtmlAndBodyTags  = key.slice(0, sliceIndex) + "div/div/div/p/" + key.slice(sliceIndex);
-          // 7 corresponds to ORDERED_NODE_SNAPSHOT_TYPE
-          const xpathResult = document.evaluate(removedHtmlAndBodyTags, document, null, 7, null)
-          for (let i = 0; i < xpathResult.snapshotLength; i++) {
-              let nodeSnapshot = xpathResult.snapshotItem(i);
-              let nodeTextNodes = [];
-              nodeSnapshot.childNodes.forEach((childNode) => {
-                  if (childNode.nodeType === Node.TEXT_NODE) {
-                      nodeTextNodes.push(childNode);
-                  }
-              })
-              let nodeArray = value.nodeArray;
-              //This is dependent on the assumption that every text in the document
-              //has a token and prediction assigned to it, otherwise this won't work.
-              for (let currentNode of nodeTextNodes) {
-                  let matchedIndex = 0;
-                  let textNode = currentNode;
-                  let nodeString = "";
-                  while (matchedIndex > -1 && nodeArray.length > 0) {
-                      let [node, pred] = nodeArray.shift();
-                      // ignore unknown characters that could not be parsed
-                      while (node.indexOf('�') != -1 && nodeArray.length >= 1) {
-                          [node, pred] = nodeArray.shift();
-                      }
-                      nodeString += node;
-                      const nodeText = textNode.nodeValue;
-                      matchedIndex = nodeText.indexOf(node.trim());
-                      //indexOf returns -1 if not present
-                      if (matchedIndex == -1) {
-                          // log if node text still had text in it that was unmatched
-                          if (nodeText.trim().length != 0) {
-                              console.log('no match: /"' + node + '/" in this text: ' + nodeText + nodeText.trim().length)
-                          }
-                          break;
-                      }
-                      let splitIndex = matchedIndex + node.trim().length;
-                      //create new element to contain colored text
-                      var span = document.createElement("span");
-                      span.appendChild(document.createTextNode(node));
-                      span.style.backgroundColor = colorMap.get(pred);
-                      // split the text node at the index of the matched string
-                      let newNode = textNode.splitText(splitIndex);
-                      // delete the old node that contained the uncolored text
-                      newNode.parentNode.removeChild(newNode.previousSibling);
-                      // insert the new colorized text before the rest of the text node's text value
-                      newNode.parentElement.insertBefore(span, newNode);
-                      textNode = newNode;
-                  }
-              }
-          }
-      }
-  )
-}
+  console.log("Start to colorize");
+  let test = document.getElementById('test');
+  // 1. Traverse to the node that needs highlight
+  for (let [xpath, [text, tagged_sequence]] of xpathMap){
+    // Check if tag is not 'outside'
+    if (tagged_sequence.includes('_')) {
+      var tag = tagged_sequence.split('_')[1];
+    } else {
+      var tag = 'o';
+    };
+    var highlightColor = colorMapper.get(tag);
+    var result = document.evaluate(xpath, document, null, 9, null).singleNodeValue;
+    const walker = document.createTreeWalker(result, NodeFilter.SHOW_TEXT, null, false);
+    let textNode;
 
-const colorMapper = {
+    while (textNode = walker.nextNode()) {
+      if (textNode.textContent.trim().length > 0) {
+        const span = document.createElement('span');
+        span.className = highlightColor;
+        const parent = textNode.parentNode;
+        parent.insertBefore(span, textNode);
+        span.appendChild(textNode);
+      }
+    }
+  }
+
+};
+//---------------------------------------------------------------------------------------
+
+// Object Version of colorMapper
+const colorMapperObj = {
   t: "DarkOrange",
   tn: "DarkSalmon",
   n: "Gold",
@@ -194,8 +206,10 @@ const colorMapper = {
   sssn: "LightSteelBlue",
   sssst: "PaleGreen",
   ssssn: "MediumAquaMarine",
-  o: "Gainsboro"
+  // o: "Gainsboro"
 };
+// Convert object to map for easy iteration
+const colorMapper = new Map(Object.entries(colorMapperObj));
 
 // create mapping of pred -> color
 function populateColorMap(preds) {
@@ -209,4 +223,3 @@ function populateColorMap(preds) {
   const colorMapValue = colorMapper[predsSplit];
   colorMap.set(preds, colorMapValue);
 }
-

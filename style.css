@@ -14,6 +14,57 @@
   -webkit-text-size-adjust: 100%;
 }
 
+
+/*---------Highlight Color Span Style------------*/
+.DarkOrange {
+  background-color: #ff8c00;
+}
+
+.DarkSalmon {
+  background-color: DarkSalmon;
+}
+
+.Gold {
+  background-color: Gold;
+}
+
+.LightCoral {
+  background-color: LightCoral;
+}
+
+.IndianRed {
+  background-color: IndianRed;
+}
+
+.Plum {
+  background-color: Plum;
+}
+
+.Salmon {
+  background-color: Salmon;
+}
+
+.CadetBlue {
+  background-color: CadetBlue;
+}
+
+.LightSteelBlue {
+  background-color: LightSteelBlue;
+}
+
+.PaleGreen {
+  background-color: PaleGreen;
+}
+
+.MediumAquaMarine {
+  background-color: MediumAquaMarine;
+}
+
+.Gainsboro {
+  background-color: Gainsboro;
+}
+/*-----------------------------------------------*/
+
 div {
   width: 75%;
   display: block;
