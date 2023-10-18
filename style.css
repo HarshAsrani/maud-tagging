@@ -138,6 +138,21 @@ h2 {
   text-align: left;
 }
 
+.refresh-button {
+  width: 70px;
+  height: 25px;
+  font-size: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #d4d4d4;
+  margin-left: 10px;
+}
+
+.option2-step1 {
+  display: flex;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
