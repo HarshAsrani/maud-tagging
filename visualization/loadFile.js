@@ -20,7 +20,7 @@ function readCSV(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     // TODO: Read text encoding from header of file
-    reader.readAsText(file, "windows-1252");
+    reader.readAsText(file, "utf-8");
     reader.addEventListener("load", () => {
       csvText = reader.result;
       resolve(csvText);
@@ -38,10 +38,17 @@ function loadFile(path, fileType) {
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE) {
         if (xhr.status === 200) {
-          if (fileType === "html" || fileType === "csv") {
+          if (fileType === "html") {
             // const text = xhr.responseText;
             const text = xhr.response;
             const decoder = new TextDecoder('windows-1252');
+            const decodedText = decoder.decode(text);
+            resolve(decodedText);
+          }
+          else if (fileType === "csv") {
+            // const text = xhr.responseText;
+            const text = xhr.response;
+            const decoder = new TextDecoder('utf-8');
             const decodedText = decoder.decode(text);
             resolve(decodedText);
           }

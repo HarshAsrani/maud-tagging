@@ -26,6 +26,7 @@ function parseCSV(csv) {
       const rowMatches = lines[i].match(regex);
       if (rowMatches) {
         const row = rowMatches.map(field => field.trim().replace(/^"(.+)"$/, '$1'));
+        row.unshift(i);
         data.push(row);
       }
     }
