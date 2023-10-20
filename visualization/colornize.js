@@ -33,12 +33,37 @@ function colorize(xpathMap) {
         );
         while (textNode = walker.nextNode()) {
           if (textNode.textContent.trim().length > 0) {
+            // const span = document.createElement('span');
+            // span.className = highlightColor;
+            // const parent = textNode.parentNode;
+            // parent.insertBefore(span, textNode);
+            // span.appendChild(textNode);
+            // colorizeCount += 1
+            const completeText = textNode.textContent.trim();
+            const index = completeText.indexOf(text);
+            const beforeText = completeText.substring(0, index);
+            const highlightedText = text;
+            const afterText = completeText.substring(index + text.length);
+
+            const parent = textNode.parentNode;
+
+            if (beforeText.length > 0) {
+              const beforeNode = document.createTextNode(beforeText);
+              parent.insertBefore(beforeNode, textNode);
+            }
+
             const span = document.createElement('span');
             span.className = highlightColor;
-            const parent = textNode.parentNode;
+            span.textContent = highlightedText;
             parent.insertBefore(span, textNode);
-            span.appendChild(textNode);
-            colorizeCount += 1
+
+            if (afterText.length > 0) {
+              const afterNode = document.createTextNode(afterText);
+              parent.insertBefore(afterNode, textNode);
+            }
+
+            parent.removeChild(textNode);
+            colorizeCount += 1;
           }
         }
       }
