@@ -12,10 +12,7 @@ function colorize(xpathMap) {
           var tag = 'o';
         };
         var highlightColor = colorMap.get(tag);
-        // console.log("The xpath is "+xpath);
-        // console.log("tag is "+tag);
         var result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        // console.log("The result is "+document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null));
         const walker = document.createTreeWalker(result, NodeFilter.SHOW_TEXT, null, false);
         let textNode;
     
