@@ -26,7 +26,7 @@ function getXPathLabelMap(csvRows) {
 
   
 function makeCsvWithUniqueXpath(csvRows) {
-    // try {
+    try {
         const uniqueXpath = getUniqueXpath(csvRows);
         const newCsvRows = Array.from(csvRows);
         uniqueXpath.forEach(([indexList, textList], xpath) => {
@@ -51,21 +51,24 @@ function makeCsvWithUniqueXpath(csvRows) {
                     false // Not iterating over entity references
                 );
 
+                prevMatchIndex = 0;
+                spanNumber = 0;
                 while (textNode = walker.nextNode()) {
                     currText = textNode.textContent.trim().replace(/[\n\t]/g, ' ');
                     if (currText.length > 0) {
                         // the textNode content corresponds to one row in the csv
-                        if (textList.indexOf(currText) !== -1) {
+                        if (textList.slice(prevMatchIndex).indexOf(currText) !== -1) {
                             const span = document.createElement('span');
                             const parent = textNode.parentNode;
                             parent.insertBefore(span, textNode);
                             span.appendChild(textNode);
-                            const index = indexList[textList.indexOf(currText)];
+                            const index = indexList[textList.slice(prevMatchIndex).indexOf(currText)+prevMatchIndex];
                             const newCsvRow = newCsvRows[index-1];
                             if (newCsvRows[index-1].length >= 6) {  
-                                spanNumber = 1
+                                spanNumber += 1;
                                 newCsvRows[index-1][3] = newCsvRow[3] + "/span[" + spanNumber + "]";
                             }
+                            prevMatchIndex = textList.slice(prevMatchIndex).indexOf(currText)+1;
                         }
                         // the textNode content corresponds to multiple rows in the csv
                         else {
@@ -78,9 +81,10 @@ function makeCsvWithUniqueXpath(csvRows) {
                                 parent.insertBefore(span, textNode);
                                 if (newCsvRows[index-1].length >= 6) {    
                                     const newCsvRow = newCsvRows[index-1];
-                                    spanNumber = i+1
+                                    spanNumber = spanNumber + 1
                                     newCsvRows[index-1][3] = newCsvRow[3] + "/span[" + spanNumber + "]";
                                 }
+                                console.log("new xpath is newCsvRows[index-1][3]")
                             }
                             parent.removeChild(textNode);
                         }
@@ -89,14 +93,17 @@ function makeCsvWithUniqueXpath(csvRows) {
             }
         });
         return newCsvRows;
-    // }
-    // catch (error) {
-    //     // location.reload();
-    //     // setTimeout(() => {
-    //     //     console.log("Wait for reloading")
-    //     // }, 500);
-    //     console.log("Wait for reloading")
-    // }
+    }
+    catch (error) {
+        // location.reload();
+        // setTimeout(() => {
+        //     console.log("Wait for reloading")
+        // }, 500);
+        console.log(error);
+        const paragraph = document.getElementById("visualization-status");
+        paragraph.innerHTML = "Fail to visualize. Please check console output to figure out the error or refresh to retry";
+        paragraph.style.color = "red";
+    }
 }
 
 function getUniqueXpath(csvRows) {
