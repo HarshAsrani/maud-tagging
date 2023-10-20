@@ -5,7 +5,7 @@ function colorize(xpathMap) {
     try {
       const colorMap = getColorMap();
       // 1. Traverse to the node that needs highlight
-      for (let [xpath, [text, tagged_sequence]] of xpathMap){
+      for (let [xpath, [text, highlightedText, tagged_sequence]] of xpathMap){
         // Check if tag is not 'outside'
         if (tagged_sequence.includes('_')) {
           var tag = tagged_sequence.split('_')[1];
@@ -39,12 +39,16 @@ function colorize(xpathMap) {
             // parent.insertBefore(span, textNode);
             // span.appendChild(textNode);
             // colorizeCount += 1
-            const completeText = textNode.textContent.trim();
-            const index = completeText.indexOf(text);
-            const beforeText = completeText.substring(0, index);
-            const highlightedText = text;
-            const afterText = completeText.substring(index + text.length);
-
+            const index = text.indexOf(highlightedText);
+            const beforeText = text.substring(0, index);
+            const afterText = text.substring(index + highlightedText.length);
+            console.log("completeText is "+text);
+            console.log("xpath is "+xpath);
+            console.log("index is "+index);
+            console.log("beforeText is "+beforeText);
+            console.log("highlithedText is "+highlightedText);
+            console.log("afterText is "+ afterText);
+            
             const parent = textNode.parentNode;
 
             if (beforeText.length > 0) {

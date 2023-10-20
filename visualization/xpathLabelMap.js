@@ -14,8 +14,9 @@ function getXPathLabelMap(csvRows) {
         const xpathOriginal = csvRow[getHighlightedXPath()]; // Assuming the XPath is in the first column
         const sliceIndex = "/html/body/".length;
         xpath = insertPosition + xpathOriginal.slice(sliceIndex); // update xpath as original html is rendered inside a p tag
-        const text = csvRow[getHighlightedText()];
-        xpathMap.set(xpath, [text, tagged_sequence]);
+        const text = csvRow[getText()];
+        const highlightedText = csvRow[getHighlightedText()];
+        xpathMap.set(xpath, [text, highlightedText, tagged_sequence]);
       }
     }
     console.log("Successfully get <xpath,label> map");
@@ -31,6 +32,7 @@ function makeCsvWithUniqueXpath(csvRows) {
         const newCsvRows = Array.from(csvRows);
         uniqueXpath.forEach(([indexList, textList], xpath) => {
             if (textList.length > 1) {
+                console.log("xpath is "+xpath);
                 var result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
                 //Iterate through the text nodes that are direct children of the result element and ignore text nodes in deeper elements
                 const walker = document.createTreeWalker(
@@ -124,6 +126,7 @@ function getUniqueXpath(csvRows) {
             uniqueXpath.set(xpath, [[csvIndex],[text]]);
         }
     }
+    console.log(uniqueXpath);
     return uniqueXpath;
 }
 
