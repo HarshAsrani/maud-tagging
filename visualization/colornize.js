@@ -10,9 +10,13 @@ function colorize(xpathMap) {
         if (tagged_sequence.includes('_')) {
           var tag = tagged_sequence.split('_')[1];
         } else {
-          var tag = 'o';
+          continue;
         };
         var highlightColor = colorMap.get(tag);
+        console.log("xpath is "+xpath);
+        console.log("text is "+ text);
+        console.log("highlightedText is "+ highlightedText);
+
         var result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
         const walker = document.createTreeWalker(
           result, // Root node
@@ -42,12 +46,12 @@ function colorize(xpathMap) {
             const index = text.indexOf(highlightedText);
             const beforeText = text.substring(0, index);
             const afterText = text.substring(index + highlightedText.length);
-            console.log("completeText is "+text);
-            console.log("xpath is "+xpath);
-            console.log("index is "+index);
-            console.log("beforeText is "+beforeText);
-            console.log("highlithedText is "+highlightedText);
-            console.log("afterText is "+ afterText);
+            // console.log("completeText is "+text);
+            // console.log("xpath is "+xpath);
+            // console.log("index is "+index);
+            // console.log("beforeText is "+beforeText);
+            // console.log("highlithedText is "+highlightedText);
+            // console.log("afterText is "+ afterText);
             
             const parent = textNode.parentNode;
 

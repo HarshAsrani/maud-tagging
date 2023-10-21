@@ -55,6 +55,10 @@ function makeCsvWithUniqueXpath(csvRows) {
 
                 prevMatchIndex = 0;
                 spanNumber = 0;
+                console.log("textList is:");
+                console.log(textList);
+                console.log("indexList is:");
+                console.log(textList);
                 while (textNode = walker.nextNode()) {
                     currText = textNode.textContent.trim().replace(/[\n\t]/g, ' ');
                     if (currText.length > 0) {
@@ -65,16 +69,20 @@ function makeCsvWithUniqueXpath(csvRows) {
                             parent.insertBefore(span, textNode);
                             span.appendChild(textNode);
                             const index = indexList[textList.slice(prevMatchIndex).indexOf(currText)+prevMatchIndex];
+                            console.log("prevMatchIndex is "+prevMatchIndex);
+                            console.log("index is "+index)
                             const newCsvRow = newCsvRows[index-1];
                             if (newCsvRows[index-1].length >= 6) {  
                                 spanNumber += 1;
                                 newCsvRows[index-1][3] = newCsvRow[3] + "/span[" + spanNumber + "]";
+                                console.log("text is "+currText);
+                                console.log("new csv xpath is "+newCsvRows[index-1][3]);
                             }
-                            prevMatchIndex = textList.slice(prevMatchIndex).indexOf(currText)+1;
+                            prevMatchIndex = textList.slice(prevMatchIndex).indexOf(currText)+prevMatchIndex+1;
                         }
                         // the textNode content corresponds to multiple rows in the csv
                         else {
-                            subTextList = splitCurrText(currText, indexList, textList);
+                            [subTextList, prevMatchIndex] = splitCurrText(currText, indexList, textList, prevMatchIndex);
                             const parent = textNode.parentNode;
                             for (let i = 0; i < subTextList.length; i++) {
                                 [index, subtext] = subTextList[i];
@@ -86,7 +94,9 @@ function makeCsvWithUniqueXpath(csvRows) {
                                     spanNumber = spanNumber + 1
                                     newCsvRows[index-1][3] = newCsvRow[3] + "/span[" + spanNumber + "]";
                                 }
-                                console.log("new xpath is newCsvRows[index-1][3]")
+                                console.log("text is "+currText);
+                                console.log("subtext is "+subtext)
+                                console.log("new xpath is"+ newCsvRows[index-1][3])
                             }
                             parent.removeChild(textNode);
                         }
@@ -130,14 +140,15 @@ function getUniqueXpath(csvRows) {
     return uniqueXpath;
 }
 
-function splitCurrText(currText, indexList, textList) {
+function splitCurrText(currText, indexList, textList, prevMatchIndex) {
     subTextList = [];
     index = 0;
-    for (let i = 0; i < textList.length; i++) {
+    for (let i = prevMatchIndex; i < textList.length; i++) {
         subText = textList[i];
         if (currText.includes(subText)) {
             subTextList.push([indexList[i], subText]);
+            prevMatchIndex = i
         }
     }
-    return subTextList;
+    return [subTextList, prevMatchIndex];
 }

@@ -33,7 +33,7 @@ function readCSV(file) {
   
 function loadFile(path, fileType) {
   return new Promise((resolve, reject) => {
-    console.log("Start to load "+fileType+" file");
+    console.log("Start to load "+fileType+" file: " + path);
     const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE) {
