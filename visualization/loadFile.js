@@ -5,7 +5,7 @@ function readHTML(file) {
     reader.readAsText(file, "windows-1252");
     reader.addEventListener(
       "load", () => {
-        console.log("start to load html file");
+        // console.log("start to load html file");
         const htmlText = reader.result;
         resolve(htmlText);
       }
@@ -33,7 +33,7 @@ function readCSV(file) {
   
 function loadFile(path, fileType) {
   return new Promise((resolve, reject) => {
-    console.log("Start to load "+fileType+" file: " + path);
+    // console.log("Start to load "+fileType+" file: " + path);
     const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE) {

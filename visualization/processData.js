@@ -1,21 +1,21 @@
 function processHTML(text) {
-  console.log("Start to insert the html text");
+  // console.log("Start to insert the html text");
   let dom;
   const parser = new DOMParser();
   dom = parser.parseFromString(text, 'text/html');
   const htmlPreview = document.getElementById('html-preview');
   htmlPreview.innerHTML = text;
-  console.log("Successfully insert html text");
+  // console.log("Successfully insert html text");
 }
 
 function processCSV(text) {
   const csvRows = text.trim().split('\n').map(row => row.replace(/\r$/, ''));
   const csvData = parseCSV(csvRows.join('\n'));
-  console.log(csvData);
+  // console.log(csvData);
   checkCSV(csvData);
   // Assuming the CSV has comma-separated values
   // Now you can process the CSV data (e.g., display, parse, etc.)
-  console.log("Successfully extract csv text");
+  // console.log("Successfully extract csv text");
   return csvData;
 }
 
@@ -26,7 +26,7 @@ function checkCSV(csvData) {
     i++;
     // console.log(csvRow);
     if (csvRow.length < 6 || (csvRow[5] !== "o" && csvRow[3].trim() == "")) {
-      console.log(csvRow);
+      // console.log(csvRow);
       const paragraph = document.getElementById("visualization-status");
       paragraph.innerHTML = "Fail to visualize. Original CSV file exists error on line "+i;
       paragraph.style.color = "red";
@@ -65,7 +65,15 @@ function parseCSV(csv) {
       //   data.push(row);
       // }
       fields.unshift(i);
-      data.push(fields)
+      if (i!==0) {
+        xpaths.push(fields[1]);
+        texts.push(fields[2]);
+        highlighted_xpaths.push(fields[3]);
+        sTexts.push(fields[4]);
+        tagged_sequence.push(fields[5]);
+      }
+      data.push(fields);
     }
+    updateStorage(xpaths, texts, highlighted_xpaths, sTexts, tagged_sequence);
     return data;
 }

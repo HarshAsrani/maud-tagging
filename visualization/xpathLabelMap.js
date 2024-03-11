@@ -19,9 +19,9 @@ function getXPathLabelMap(csvRows) {
         xpathMap.set(xpath, [text, highlightedText, tagged_sequence]);
       }
     }
-    console.log("Successfully get <xpath,label> map");
-    console.log("xpathMap: ");
-    console.log(xpathMap);
+    // console.log("Successfully get <xpath,label> map");
+    // console.log("xpathMap: ");
+    // console.log(xpathMap);
     return xpathMap;
 }
 
@@ -32,7 +32,7 @@ function makeCsvWithUniqueXpath(csvRows) {
         const newCsvRows = Array.from(csvRows);
         uniqueXpath.forEach(([indexList, textList], xpath) => {
             if (textList.length > 1) {
-                console.log("xpath is "+xpath);
+                // console.log("xpath is "+xpath);
                 var result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
                 //Iterate through the text nodes that are direct children of the result element and ignore text nodes in deeper elements
                 const walker = document.createTreeWalker(
@@ -55,10 +55,10 @@ function makeCsvWithUniqueXpath(csvRows) {
 
                 prevMatchIndex = 0;
                 spanNumber = 0;
-                console.log("textList is:");
-                console.log(textList);
-                console.log("indexList is:");
-                console.log(textList);
+                // console.log("textList is:");
+                // console.log(textList);
+                // console.log("indexList is:");
+                // console.log(textList);
                 while (textNode = walker.nextNode()) {
                     currText = textNode.textContent.trim().replace(/[\n\t]/g, ' ');
                     if (currText.length > 0) {
@@ -69,14 +69,14 @@ function makeCsvWithUniqueXpath(csvRows) {
                             parent.insertBefore(span, textNode);
                             span.appendChild(textNode);
                             const index = indexList[textList.slice(prevMatchIndex).indexOf(currText)+prevMatchIndex];
-                            console.log("prevMatchIndex is "+prevMatchIndex);
-                            console.log("index is "+index)
+                            // console.log("prevMatchIndex is "+prevMatchIndex);
+                            // console.log("index is "+index)
                             const newCsvRow = newCsvRows[index-1];
                             if (newCsvRows[index-1].length >= 6) {  
                                 spanNumber += 1;
                                 newCsvRows[index-1][3] = newCsvRow[3] + "/span[" + spanNumber + "]";
-                                console.log("text is "+currText);
-                                console.log("new csv xpath is "+newCsvRows[index-1][3]);
+                                // console.log("text is "+currText);
+                                // console.log("new csv xpath is "+newCsvRows[index-1][3]);
                             }
                             prevMatchIndex = textList.slice(prevMatchIndex).indexOf(currText)+prevMatchIndex+1;
                         }
@@ -94,9 +94,9 @@ function makeCsvWithUniqueXpath(csvRows) {
                                     spanNumber = spanNumber + 1
                                     newCsvRows[index-1][3] = newCsvRow[3] + "/span[" + spanNumber + "]";
                                 }
-                                console.log("text is "+currText);
-                                console.log("subtext is "+subtext)
-                                console.log("new xpath is"+ newCsvRows[index-1][3])
+                                // console.log("text is "+currText);
+                                // console.log("subtext is "+subtext)
+                                // console.log("new xpath is"+ newCsvRows[index-1][3])
                             }
                             parent.removeChild(textNode);
                         }
@@ -136,7 +136,7 @@ function getUniqueXpath(csvRows) {
             uniqueXpath.set(xpath, [[csvIndex],[text]]);
         }
     }
-    console.log(uniqueXpath);
+    // console.log(uniqueXpath);
     return uniqueXpath;
 }
 
