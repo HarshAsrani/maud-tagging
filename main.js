@@ -108,7 +108,7 @@ document.addEventListener('keydown', (event) => {
                     concatXpaths = highlightedXpaths.join('|');
                     highlightElement(concatXpaths, text, highlightedSegmentedText, 's_' + sequence);
                   } else {
-                    highlightElement(highlightedXpaths, xpaths_text, highlightedText, 's_' + sequence);
+                    highlightElement(highlightedXpaths, text, highlightedText, 's_' + sequence);
                   }
                   
                   tagged_sequence.push(sequence);
@@ -116,7 +116,7 @@ document.addEventListener('keydown', (event) => {
                   sTexts.push(highlightedSegmentedText);
                   texts.push(highlightedText);
                   highlighted_xpaths.push(highlightedXpaths)
-                  updateStorage(xpaths, highlightedText, xpaths, highlightedSegmentedText, 's_'+sequence)
+                  updateStorage(xpaths, highlightedText, xpaths, highlightedSegmentedText, 's_' + sequence)
 
                   isMenuOpen = false;
                   menuWindow.close();

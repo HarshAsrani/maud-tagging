@@ -13,7 +13,7 @@ function colorize(xpathMap) {
                 continue;
             };
 
-            highlightElement(xpath, text, highlightedText, tagged_sequence);
+            highlightElement(xpath, text, highlightedText, tag);
             colorizeCount += 1;
         }
         const paragraph = document.getElementById("visualization-status");
@@ -28,9 +28,8 @@ function colorize(xpathMap) {
     }
 };
 
-window.highlightElement = function(xpath, text, highlightedText, tagged_sequence) {
+window.highlightElement = function(xpath, text, highlightedText, tag) {
     // Retrieve highlight color based on tag
-    const tag = tagged_sequence.split('_')[1];
     const colorMap = getColorMap();
     const highlightColor = colorMap.get(tag);
 
