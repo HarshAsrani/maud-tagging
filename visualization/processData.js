@@ -36,6 +36,7 @@ function checkCSV(csvData) {
 }
   
 function parseCSV(csv) {
+  refreshPage();
     // const regex = /(\s*"[^"]+"\s*|\s*[^,]+|,)(?=,|$)/g;
     const lines = csv.split('\n');
     const data = [];
