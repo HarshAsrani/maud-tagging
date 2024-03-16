@@ -1,4 +1,4 @@
-# MarkupMnA-GroundTruth-Visualizer
+# MarkupMnA GroundTruth Visualizer and Labeling Tool
 
 ## Run on pulic website
 Use url: https://harshasrani.github.io/maud-tagging/
@@ -8,4 +8,4 @@ Use url: https://harshasrani.github.io/maud-tagging/
 2. Put the project folder `maud-tagging` under “xampp/htdocs/”
 3. Open XAMPP Control Panel 
 4. Start Apache service
-5. Access http://localhost/MarkupMnA-Colornizer-GroudTruth/ in Google Chrome to open the website.
+5. Access http://localhost/maud-tagging/ in Google Chrome to open the website.
