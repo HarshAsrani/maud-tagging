@@ -61,6 +61,15 @@ function checkContractString(str) {
 let isMenuOpen = false;
 let selectedOption = null;
 
+function findNextOccurrence(xpath, startIndex) {
+  for (let i = startIndex + 1; i < xpaths.length; i++) {
+      if (xpaths[i] === xpath) {
+          return i;
+      }
+  }
+  return -1; // If not found
+}
+
 document.addEventListener('keydown', (event) => {
   if (event.code === 'Space') {
       event.preventDefault();
@@ -105,19 +114,84 @@ document.addEventListener('keydown', (event) => {
               } else if (event.code === 'Space' && sequence.length > 0 && labelTypes.has(sequence)) {
                   // Pass the information to the main window for highlighting
                   if (highlightedXpaths.length > 1) {
-                    concatXpaths = highlightedXpaths.join('|');
-                    highlightElement(concatXpaths, text, highlightedSegmentedText, 's_' + sequence);
+                    let flag = 0;
+                    let flag_bef = 0;
+                    let flag_aft = 0;
+                    let xpathIndex;
+                    for (let i = 0; i < highlightedSegmentedText.length; i++) {
+                      let taggedSeq;
+                      if (i - flag_bef === 0) {
+                        taggedSeq = 's_' + sequence;
+                      } else if (i === highlightedSegmentedText.length - 1) {
+                        taggedSeq = 'e_' + sequence;
+                      } else {
+                        taggedSeq = 'i_' + sequence;
+                      }                   
+                      const commonPart = [...highlightedSegmentedText[i]].filter(char => [...highlightedText].includes(char)).join('');
+                      console.log(commonPart);
+                      if (commonPart != '') {
+                        flag = 1
+                        highlightElement(highlightedXpaths[i], highlightedSegmentedText[i], commonPart, sequence);
+                        imp_part_with_span = highlightedXpaths[i].substring(0, 11) + highlightedXpaths[i].substring(34);
+                        let imp_part;
+                        if (imp_part_with_span.indexOf('/span[') != -1) {
+                          imp_part = imp_part_with_span.substring(0, imp_part_with_span.lastIndexOf('/span['));
+                        } else {
+                          imp_part = imp_part_with_span;
+                        }
+                        xpathIndex = xpaths.indexOf(imp_part);
+                        if (xpathIndex != -1) {
+                          if (tagged_sequence[xpathIndex] !== 'o') {
+                            while(tagged_sequence[xpathIndex] !== 'o') {
+                              const nextIndex = findNextOccurrence(imp_part, xpathIndex);
+                              if (nextIndex !== -1) {
+                                  // Next occurrence found
+                                  console.log("Next occurrence index:", nextIndex);
+                                  xpathIndex = nextIndex; // Update xpathIndex for the next iteration
+                              } else {
+                                  console.log("No next occurrence found.");
+                                  break; // Exit the loop if no next occurrence is found
+                              }
+
+                            }
+                          }
+                          sTexts[xpathIndex] = highlightedSegmentedText[i];
+                          tagged_sequence[xpathIndex] = taggedSeq;
+                          highlighted_xpaths[xpathIndex] = imp_part;
+                        } 
+                      } else {
+                        if (flag == 0) flag_bef += 1;
+                        else flag_aft += 1;
+                      }
+                    }
+                    if (flag_aft > 0) {
+                      console.log(tagged_sequence[xpathIndex][0]);
+                      if (tagged_sequence[xpathIndex][0] !== 's') {
+                  
+                        tagged_sequence[xpathIndex] = 'e_'+sequence;
+                      }
+                      console.log(tagged_sequence[xpathIndex][0]);
+                    }
+                    updateStorage(xpaths, texts, highlighted_xpaths, sTexts, tagged_sequence);
                   } else {
-                    highlightElement(highlightedXpaths, text, highlightedText, 's_' + sequence);
+                    highlightElement(highlightedXpaths, text, highlightedText, sequence);
+                    imp_part_with_span = highlightedXpaths[0].substring(0, 11) + highlightedXpaths[0].substring(34);
+                    let imp_part;
+                    if (imp_part_with_span.indexOf('/span[') != -1) {
+                      imp_part = imp_part_with_span.substring(0, imp_part_with_span.lastIndexOf('/span['));
+                    } else {
+                      imp_part = imp_part_with_span;
+                    }
+                    const xpathIndex = xpaths.indexOf(imp_part);
+                    if (xpathIndex != -1) {
+                      sTexts[xpathIndex] = highlightedSegmentedText;
+                      tagged_sequence[xpathIndex] = sequence;
+                      highlighted_xpaths[xpathIndex] = imp_part;
+                    } 
+                    updateStorage(xpaths, texts, xpaths, sTexts, tagged_sequence);
                   }
                   
-                  tagged_sequence.push(sequence);
-                  xpaths.push(highlightedXpaths);
-                  sTexts.push(highlightedSegmentedText);
-                  texts.push(highlightedText);
-                  highlighted_xpaths.push(highlightedXpaths)
-                  updateStorage(xpaths, highlightedText, xpaths, highlightedSegmentedText, 's_' + sequence)
-
+                  
                   isMenuOpen = false;
                   menuWindow.close();
               } else {
@@ -137,18 +211,35 @@ document.addEventListener('keydown', (event) => {
               isMenuOpen = false;
           });
       }
-  } else if (event.key === 'p') {
-      downloadObjectAsJson(localStorage, 'contract_saved')
-  } else if ((event.altKey || event.metaKey) && event.key === "a") {
-      let XPathsAndTexts = getAllXPathsAndTexts();
-      updateStorage(XPathsAndTexts[1], '', XPathsAndTexts[0], '', '');
-      downloadObjectAsJson(localStorage, 'all_contract_text');
-  } else if ((event.altKey || event.metaKey) && event.key === "0") {
-      updateStorage('', '', '', '', '');
-      console.log('ERASED');
   }
 });
 
+function downloadJson() {
+  downloadObjectAsJson(sessionStorage, 'contract_saved');
+}
+function downloadObjectAsJson(exportObj, exportName) {
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
+
+function getAllXPathsAndTexts() {
+  const sel = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(document.body);
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  const xpaths_text = getElementInfo(sel, range);
+  const highlightedXpaths = xpaths_text.xpaths;
+  const highlightedSegmentedText = xpaths_text.selectedTexts;
+  
+  return [highlightedSegmentedText, highlightedXpaths];
+}
 
   function getElementInfo(sel, range) {
     const container = range.commonAncestorContainer;

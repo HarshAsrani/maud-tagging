@@ -28,10 +28,10 @@ function colorize(xpathMap) {
     }
 };
 
-window.highlightElement = function(xpath, text, highlightedText, tag) {
-    // Retrieve highlight color based on tag
+window.highlightElement = function(xpath, text, highlightedText, sequence) {
+    // Retrieve highlight color based on sequence
     const colorMap = getColorMap();
-    const highlightColor = colorMap.get(tag);
+    const highlightColor = colorMap.get(sequence);
 
     // Find the result element in the main window
     let result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -55,20 +55,16 @@ window.highlightElement = function(xpath, text, highlightedText, tag) {
         false // Not iterating over entity references
     );
 
-    // Iterate over text nodes and apply highlighting
-    while (textNode = walker.nextNode()) {
-        if (textNode.textContent.trim().length > 0) {
-            const index = text.indexOf(highlightedText);
-            const beforeText = text.substring(0, index);
-            const afterText = text.substring(index + highlightedText.length);
+    // Iterate over text nodes and apply highlighting to each occurrence
+    let node;
+    while (node = walker.nextNode()) {
+        const textContent = node.textContent;
+        const index = textContent.indexOf(highlightedText);
+        if (index !== -1) {
+            const beforeText = textContent.substring(0, index);
+            const afterText = textContent.substring(index + highlightedText.length);
 
-            const parent = textNode.parentNode;
-
-            if (beforeText.length > 0) {
-                const beforeNode = document.createTextNode(beforeText);
-                parent.replaceChild(beforeNode, textNode);
-            }
-
+            // Create a new span element for highlighting
             const span = document.createElement('span');
             span.className = highlightColor;
             span.textContent = highlightedText;
@@ -76,26 +72,36 @@ window.highlightElement = function(xpath, text, highlightedText, tag) {
             span.onclick = function() {
                 remove_highlight(span);
             };
-            parent.insertBefore(span, textNode);
 
-            if (afterText.length > 0) {
-                const afterNode = document.createTextNode(afterText);
-                parent.insertBefore(afterNode, textNode);
-            }
+            // Create text nodes for any text before and after the highlighted text
+            const beforeNode = document.createTextNode(beforeText);
+            const afterNode = document.createTextNode(afterText);
 
-            parent.removeChild(textNode);
+            // Replace the original text node with the new nodes (before, span, after)
+            node.parentNode.insertBefore(beforeNode, node);
+            node.parentNode.insertBefore(span, node);
+            node.parentNode.insertBefore(afterNode, node);
+
+            // Remove the original text node
+            node.parentNode.removeChild(node);
         }
     }
 };
+
 
 
 function remove_highlight(span) {
     // Get the parent node of the span
     const parent = span.parentNode;
 
-    // Create a text node containing the text of the span
+    // Create a text node containing the text of the span    
     const textNode = document.createTextNode(span.textContent);
 
+    remove_index = sTexts.indexOf(textNode.data);
+    sTexts[remove_index] = '';
+    tagged_sequence[remove_index] = 'o';
+    highlighted_xpaths[remove_index] = '';
+    updateStorage(xpaths, texts, highlighted_xpaths, sTexts, tagged_sequence);
     // Replace the span with the text node
     parent.replaceChild(textNode, span);
 }
