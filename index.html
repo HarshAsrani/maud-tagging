@@ -18,6 +18,19 @@
       <div class="file-upload-heading">
         <h2> Instructions </h2>
         <p> You can visualize the dataset by uploading a HTML file and the corresponding CSV file (Option 1), or by selecting a contract number (Option 2).</p>
+        <ol>
+          <li>Open the tool and select any contract from the selector on the right side. The contract will show up with the visualization. If any of them is wrong, you can just click it to delete it.</li>
+          <li>To make a new tag:
+              <ol>
+                  <li>Select an untagged region using the click and drag.</li>
+                  <li>Press space, a new pop-up will open-up showing the xpath(s) of the selected text. Type in the preferred tag (out of t, tn, n, st, sn, sst, ssn, ssst, sssn, sssst, ssssn).</li>
+                  <li>If you typed incorrectly, press 'x' once. This will clear the buffer and you can re-type the tag that you want.</li>
+                  <li>Press space again to confirm your choice.</li>
+              </ol>
+          </li>
+          <li>After completing all the tags, click the green download button on the top. This downloads the JSON file, which can then be processed using the Python script to be turned into a CSV.</li>
+      </ol>
+
       </div>
       <div class="file-upload-options">
         <div class="file-upload-option1">
