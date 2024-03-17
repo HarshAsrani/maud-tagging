@@ -56,15 +56,17 @@ window.highlightElement = function(xpath, text, highlightedText, sequence) {
     );
 
     // Iterate over text nodes and apply highlighting to each occurrence
-    let node;
-    while (node = walker.nextNode()) {
-        const textContent = node.textContent;
-        const index = textContent.indexOf(highlightedText);
-        if (index !== -1) {
-            const beforeText = textContent.substring(0, index);
-            const afterText = textContent.substring(index + highlightedText.length);
-
-            // Create a new span element for highlighting
+    while (textNode = walker.nextNode()) {
+        const textContent = textNode.textContent;
+        if (textContent.trim().length > 0) {
+            const index = text.indexOf(highlightedText);
+            const beforeText = text.substring(0, index);
+            const afterText = text.substring(index + highlightedText.length);
+            const parent = textNode.parentNode;
+            if (beforeText.length > 0) {
+                const beforeNode = document.createTextNode(beforeText);
+                parent.insertBefore(beforeNode, textNode);
+            }
             const span = document.createElement('span');
             span.className = highlightColor;
             span.textContent = highlightedText;
@@ -72,19 +74,37 @@ window.highlightElement = function(xpath, text, highlightedText, sequence) {
             span.onclick = function() {
                 remove_highlight(span);
             };
-
-            // Create text nodes for any text before and after the highlighted text
-            const beforeNode = document.createTextNode(beforeText);
-            const afterNode = document.createTextNode(afterText);
-
-            // Replace the original text node with the new nodes (before, span, after)
-            node.parentNode.insertBefore(beforeNode, node);
-            node.parentNode.insertBefore(span, node);
-            node.parentNode.insertBefore(afterNode, node);
-
-            // Remove the original text node
-            node.parentNode.removeChild(node);
+            parent.insertBefore(span, textNode);
+            if (afterText.length > 0) {
+                const afterNode = document.createTextNode(afterText);
+                parent.insertBefore(afterNode, textNode);
+            }
+            parent.removeChild(textNode);
         }
+        
+        // if (index !== -1) {
+            
+        //     // Create a new span element for highlighting
+        //     const span = document.createElement('span');
+        //     span.className = highlightColor;
+        //     span.textContent = highlightedText;
+        //     span.style.cursor = "pointer";
+        //     span.onclick = function() {
+        //         remove_highlight(span);
+        //     };
+
+        //     // Create text nodes for any text before and after the highlighted text
+        //     const beforeNode = document.createTextNode(beforeText);
+        //     const afterNode = document.createTextNode(afterText);
+
+        //     // Replace the original text node with the new nodes (before, span, after)
+        //     node.parentNode.insertBefore(beforeNode, node);
+        //     node.parentNode.insertBefore(span, node);
+        //     node.parentNode.insertBefore(afterNode, node);
+
+        //     // Remove the original text node
+        //     node.parentNode.removeChild(node);
+        // }
     }
 };
 

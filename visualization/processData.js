@@ -36,7 +36,12 @@ function checkCSV(csvData) {
 }
   
 function parseCSV(csv) {
-  refreshPage();
+    xpaths = []
+    texts = []
+    highlighted_xpaths = []
+    sTexts = []
+    tagged_sequence = []
+    console.log('Aaya CSV Parser Call');
     // const regex = /(\s*"[^"]+"\s*|\s*[^,]+|,)(?=,|$)/g;
     const lines = csv.split('\n');
     const data = [];
