@@ -131,7 +131,7 @@ document.addEventListener('keydown', (event) => {
                       console.log(commonPart);
                       if (commonPart != '') {
                         flag = 1
-                        highlightElement(highlightedXpaths[i], highlightedSegmentedText[i], commonPart, sequence);
+                        highlightElementSelected(highlightedXpaths[i], highlightedSegmentedText[i], commonPart, sequence);
                         imp_part_with_span = highlightedXpaths[i].substring(0, 11) + highlightedXpaths[i].substring(34);
                         let imp_part;
                         if (imp_part_with_span.indexOf('/span[') != -1) {
@@ -174,7 +174,7 @@ document.addEventListener('keydown', (event) => {
                     }
                     updateStorage(xpaths, texts, highlighted_xpaths, sTexts, tagged_sequence);
                   } else {
-                    highlightElement(highlightedXpaths, text, highlightedText, sequence);
+                    highlightElementSelected(highlightedXpaths, text, highlightedText, sequence);
                     imp_part_with_span = highlightedXpaths[0].substring(0, 11) + highlightedXpaths[0].substring(34);
                     let imp_part;
                     if (imp_part_with_span.indexOf('/span[') != -1) {
