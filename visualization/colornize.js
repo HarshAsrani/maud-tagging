@@ -108,7 +108,57 @@ window.highlightElement = function(xpath, text, highlightedText, sequence) {
     }
 };
 
+window.highlightElementSelected = function(xpath, highlightedText, sequence) {
+    // Retrieve highlight color based on sequence
+    const colorMap = getColorMap();
+    const highlightColor = colorMap.get(sequence);
 
+    // Find the result element in the main window
+    let result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+    // Create a tree walker
+    const walker = document.createTreeWalker(
+        result, // Root node
+        NodeFilter.SHOW_TEXT, // Show text nodes
+        {
+            acceptNode: function(node) {
+                // Custom filter function
+                if (node.parentNode === result) {
+                    // Text node is a direct child of the result element
+                    return NodeFilter.FILTER_ACCEPT;
+                } else {
+                    // Text node is in a deeper element, reject it
+                    return NodeFilter.FILTER_REJECT;
+                }
+            }
+        },
+        false // Not iterating over entity references
+    );
+
+    // Iterate over text nodes and apply highlighting to each occurrence
+    let node;
+    while (node = walker.nextNode()) {
+        const textContent = node.textContent;
+        const index = textContent.indexOf(highlightedText);
+        if (index !== -1) {
+            const beforeText = textContent.substring(0, index);
+            const afterText = textContent.substring(index + highlightedText.length);
+            const span = document.createElement('span');
+            span.className = highlightColor;
+            span.textContent = highlightedText;
+            span.style.cursor = "pointer";
+            span.onclick = function() {
+                remove_highlight(span);
+            };
+            const beforeNode = document.createTextNode(beforeText);
+            const afterNode = document.createTextNode(afterText);
+            node.parentNode.insertBefore(beforeNode, node);
+            node.parentNode.insertBefore(span, node);
+            node.parentNode.insertBefore(afterNode, node);
+            node.parentNode.removeChild(node);
+        }
+    }
+};
 
 function remove_highlight(span) {
     // Get the parent node of the span
