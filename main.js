@@ -185,10 +185,10 @@ document.addEventListener('keydown', (event) => {
                     const xpathIndex = xpaths.indexOf(imp_part);
                     if (xpathIndex != -1) {
                       sTexts[xpathIndex] = highlightedSegmentedText;
-                      tagged_sequence[xpathIndex] = sequence;
+                      tagged_sequence[xpathIndex] = 's_' + sequence;
                       highlighted_xpaths[xpathIndex] = imp_part;
                     } 
-                    updateStorage(xpaths, texts, xpaths, sTexts, tagged_sequence);
+                    updateStorage(xpaths, texts, highlighted_xpaths, sTexts, tagged_sequence);
                   }
                   
                   

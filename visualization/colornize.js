@@ -10,7 +10,7 @@ function colorize(xpathMap) {
                 var tag_type = tagged_sequence.split('_')[0];
                 var tag = tagged_sequence.split('_')[1];
             } else {
-                continue;
+                tag = tagged_sequence;
             };
 
             highlightElement(xpath, text, highlightedText, tag);
