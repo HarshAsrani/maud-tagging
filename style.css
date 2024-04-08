@@ -29,7 +29,8 @@
 }
 
 .LightCoral {
-  background-color: LightCoral;
+  background-color: IndianRed;
+  border: 1px solid #000;
 }
 
 .IndianRed {
@@ -41,7 +42,8 @@
 }
 
 .Salmon {
-  background-color: Salmon;
+  background-color: Plum;
+  border: 1px solid #000;
 }
 
 .CadetBlue {
@@ -49,7 +51,8 @@
 }
 
 .LightSteelBlue {
-  background-color: LightSteelBlue;
+  background-color: CadetBlue;
+  border: 1px solid #000;
 }
 
 .PaleGreen {
@@ -57,7 +60,8 @@
 }
 
 .MediumAquaMarine {
-  background-color: MediumAquaMarine;
+  background-color: PaleGreen;
+  border: 1px solid #000;
 }
 
 .Gainsboro {
