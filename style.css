@@ -17,11 +17,12 @@
 
 /*---------Highlight Color Span Style------------*/
 .DarkOrange {
-  background-color: #ff8c00;
+  background-color: DarkSalmon;
 }
 
 .DarkSalmon {
   background-color: DarkSalmon;
+  border: 2px solid #000;
 }
 
 .Gold {
@@ -30,11 +31,11 @@
 
 .LightCoral {
   background-color: IndianRed;
-  border: 2px solid #000;
 }
 
 .IndianRed {
   background-color: IndianRed;
+  border: 2px solid #000;
 }
 
 .Plum {
